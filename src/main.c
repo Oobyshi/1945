@@ -2,29 +2,27 @@
 //Altrimenti SDL cerca di caricare il main da SDL2Main.lib
 //NOTA: Si può passare anche come argomento di compilazione con -D
 #define SDL_MAIN_HANDLED
-#include "SDL.h"
-#include <SDL_mixer.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
 
-
-enum boolean_enum { false, true };
-typedef unsigned char boolean;
-
-typedef struct {
-    float x;
-    float y;
-} vec2;
+#include <common.h>
+#include <renderer.h>
+#include <gameobject.h>
+#include <character.h>
+#include <inputsystem.h>
+#include <bullet.h>
+#include <list.h>
+#include <aiv-vector.h>
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
+    size win = NewSize(640,480);
+
     SDL_Window* window = SDL_CreateWindow(
-        "First SDL2 Window",
+        "1945",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        640,
-        480,
+        win.Width,
+        win.Height,
         0
     );
 
@@ -39,48 +37,92 @@ int main() {
         return 2;
     }
 
+    SDL_Texture* ui_texture = NewTexture(renderer,"assets/ui/bottom.png");
+    SDL_Texture* hp_texture = NewTexture(renderer,"assets/ui/life.png");
+
+    Character player; 
+    NewCharacter(&player,NewPoint(290,180),NewSize(40,40),100,5000.f, "assets/ui/life.png");
+
+    List* bullets = list_New();
+    
+    
+    
+    Bullet bullet0 = NewBullet(playerBullet);
+    Bullet bullet1 = NewBullet(playerBullet);
+    Bullet bullet2 = NewBullet(playerBullet);
+    Bullet bullet3 = NewBullet(playerBullet);
+    Bullet bullet4 = NewBullet(playerBullet);
+    Bullet bullet5 = NewBullet(playerBullet);
+
+    list_Add(bullets,&bullet0);
+    list_Add(bullets,&bullet1);
+    list_Add(bullets,&bullet2);
+    list_Add(bullets,&bullet3);
+    list_Add(bullets,&bullet4);
+    list_Add(bullets,&bullet5);
+
+
+
+    Input input;
+    InitInputSystem(&input,"wasd");
+
     Uint64 curr_count = SDL_GetPerformanceCounter();
     Uint64 last_count = curr_count;
-    float delta_time = 0.f;
     
+    double delta_time = 0.f;
+
     char title[100];
     float update_time = 0.f;
     float time_counter = 0.f;
 
-    boolean done = false;   
-    while (!done) {
+    boolean done = false; 
+
+    while (!done) 
+    {
+        SDL_RenderClear(renderer);
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 done = true;
                 break;
             }
+            HVInput(renderer, &event, &player, bullets, &input, &win, &delta_time);
         }
 
         last_count = curr_count;
         curr_count = SDL_GetPerformanceCounter();
         delta_time = (float)(curr_count - last_count) / (float)SDL_GetPerformanceFrequency();
         int fps = (int)(1.f / delta_time);
-
+        
         update_time += delta_time;
         if (update_time >= 1.f) {
             update_time -= 1.f;
             sprintf_s(title, sizeof(title), "Delta Time: %.6f - Fps: %d", delta_time, fps);
             SDL_SetWindowTitle(window, title);
         }
+       
+        RenderingCharacter(renderer, &player);
 
-        // Clear
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-        SDL_RenderClear(renderer);
+        RenderingBullets(renderer, bullets, delta_time);
+         
+        //UI Graphic
+        RenderingTexture(renderer, ui_texture, NewPoint(0, win.Height - 99), NewSize(win.Width, 100));
+        
+        RenderingTexture(renderer, hp_texture, NewPoint(100,win.Height - 90), NewSize(40,40));
+        RenderingTexture(renderer, hp_texture, NewPoint(55,win.Height - 90), NewSize(40,40));
+        RenderingTexture(renderer, hp_texture, NewPoint(10,win.Height - 90), NewSize(40,40));
         
         // Blit
         SDL_RenderPresent(renderer);
     }
-
+    
     //Clean Up
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);  
-    SDL_Quit();
+    CloseWindow(renderer,window);
+
+    list_Destroy(bullets);
+    free(&input);
+    free(&player);
+    free(&win);
 
     return 0;
 }
