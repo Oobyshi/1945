@@ -4,14 +4,12 @@
 #include "common.h"
 #include "gameobject.h"
 #include "renderer.h"
-#include "list.h"
 
 typedef struct
 {
     GameObject Go;
     int Damage;
     float Speed;
-    boolean isActive;
 } Bullet;
 
 enum BulletType{normal = 0, playerBullet, enemyBullet};

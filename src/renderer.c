@@ -1,6 +1,5 @@
 #include <renderer.h>
 
-
 int RenderingTexture(SDL_Renderer* r, SDL_Texture* t, point p, size s){
     SDL_Rect rect;
     NewRect(&rect, p, s);
@@ -30,4 +29,6 @@ void CloseWindow(SDL_Renderer* renderer, SDL_Window* win){
     SDL_DestroyWindow(win);  
     SDL_Quit();
 }
+
+
 

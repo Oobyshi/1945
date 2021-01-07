@@ -11,11 +11,12 @@
 #include <bullet.h>
 #include <list.h>
 #include <aiv-vector.h>
+#include <map.h>
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
-    size win = NewSize(640,480);
+    size win = NewSize(HEIGHT_WINDOW, WIDTH_WINDOW);
 
     SDL_Window* window = SDL_CreateWindow(
         "1945",
@@ -36,30 +37,38 @@ int main() {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create renderer: %s\n", SDL_GetError());
         return 2;
     }
-
+    
     SDL_Texture* ui_texture = NewTexture(renderer,"assets/ui/bottom.png");
     SDL_Texture* hp_texture = NewTexture(renderer,"assets/ui/life.png");
-
     Character player; 
     NewCharacter(&player,NewPoint(290,180),NewSize(40,40),100,5000.f, "assets/ui/life.png");
 
+    //BULLETS
     List* bullets = list_New();
-    
-    
-    
     Bullet bullet0 = NewBullet(playerBullet);
     Bullet bullet1 = NewBullet(playerBullet);
     Bullet bullet2 = NewBullet(playerBullet);
     Bullet bullet3 = NewBullet(playerBullet);
     Bullet bullet4 = NewBullet(playerBullet);
     Bullet bullet5 = NewBullet(playerBullet);
-
     list_Add(bullets,&bullet0);
     list_Add(bullets,&bullet1);
     list_Add(bullets,&bullet2);
     list_Add(bullets,&bullet3);
     list_Add(bullets,&bullet4);
     list_Add(bullets,&bullet5);
+
+    //ISLANDS
+    List* Islands = list_New();
+    GameObject island0 = NewIsland(Normal);
+    GameObject island1 = NewIsland(Sand);
+    GameObject island2 = NewIsland(Vulcan);
+    
+    list_Add(Islands, &island0);
+    list_Add(Islands, &island1);
+    list_Add(Islands, &island2);
+    
+
 
 
 
@@ -76,7 +85,7 @@ int main() {
     float time_counter = 0.f;
 
     boolean done = false; 
-
+    
     while (!done) 
     {
         SDL_RenderClear(renderer);
@@ -100,10 +109,11 @@ int main() {
             sprintf_s(title, sizeof(title), "Delta Time: %.6f - Fps: %d", delta_time, fps);
             SDL_SetWindowTitle(window, title);
         }
-       
+        renderWater(renderer);
+        RenderGOList(renderer, Islands, delta_time);
+        RenderingBullets(renderer, bullets, delta_time);
         RenderingCharacter(renderer, &player);
 
-        RenderingBullets(renderer, bullets, delta_time);
          
         //UI Graphic
         RenderingTexture(renderer, ui_texture, NewPoint(0, win.Height - 99), NewSize(win.Width, 100));
@@ -111,7 +121,6 @@ int main() {
         RenderingTexture(renderer, hp_texture, NewPoint(100,win.Height - 90), NewSize(40,40));
         RenderingTexture(renderer, hp_texture, NewPoint(55,win.Height - 90), NewSize(40,40));
         RenderingTexture(renderer, hp_texture, NewPoint(10,win.Height - 90), NewSize(40,40));
-        
         // Blit
         SDL_RenderPresent(renderer);
     }
@@ -120,9 +129,7 @@ int main() {
     CloseWindow(renderer,window);
 
     list_Destroy(bullets);
-    free(&input);
-    free(&player);
-    free(&win);
+    
 
     return 0;
 }

@@ -110,8 +110,8 @@ void Shoot(SDL_Renderer* renderer, Character* c, List* b_list, size* size, doubl
         Lnode* each = b_list->__head;
         while(each){
             Lnode* next = each->next;
-            if (!((Bullet*)each->data)->isActive){
-                ((Bullet*)each->data)->isActive = true;
+            if (!((Bullet*)each->data)->Go.isActive){
+                ((Bullet*)each->data)->Go.isActive = true;
                 ((Bullet*)each->data)->Go.position.x = c->Go.position.x +(c->Go.t_size.Width * 0.5f) - 5;
                  ((Bullet*)each->data)->Go.position.y = c->Go.position.y +((Bullet*)each->data)->Go.t_size.Height;
                 index = count;

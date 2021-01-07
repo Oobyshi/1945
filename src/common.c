@@ -14,3 +14,8 @@ point NewPoint(float x, float y){
     return p;
 }
 
+int GetRandomInRange(int upper, int lower)
+{
+    return (rand() %(upper - lower + 1)) + lower;
+}
+
